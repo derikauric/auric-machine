@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auric Rituals — Content Machine</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --gold: #C9A96E; --goldD: #8B6E3E; --goldL: rgba(201,169,110,0.08);
+  --bg: #09090B; --s1: #111113; --s2: #18181B;
+  --border: rgba(201,169,110,0.14); --borderH: rgba(201,169,110,0.45);
+  --text: #F0E8D8; --textD: rgba(240,232,216,0.45); --textM: rgba(240,232,216,0.18);
+}
+body { background:var(--bg); color:var(--text); font-family:'Jost',sans-serif; font-weight:300; min-height:100vh; }
+.app { max-width:720px; margin:0 auto; padding:40px 20px 100px; }
+
+/* Typography */
+.serif { font-family:'Cormorant Garamond',serif; }
+.label { font-size:9px; letter-spacing:.28em; text-transform:uppercase; color:var(--goldD); margin-bottom:10px; display:flex; align-items:center; gap:10px; }
+.label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* Header */
+.header { text-align:center; margin-bottom:32px; }
+.header-eye { font-size:9px; letter-spacing:.35em; color:var(--gold); margin-bottom:10px; }
+.header-title { font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:300; font-style:italic; }
+.header-title span { color:var(--gold); }
+.header-line { width:36px; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:12px auto 0; }
+.header-v { font-size:9px; font-style:normal; color:var(--goldD); margin-left:8px; letter-spacing:.1em; font-family:'Jost',sans-serif; }
+
+/* Chips */
+.grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
+.flex-row { display:flex; gap:6px; }
+.chip {
+  padding:10px 8px; border:1px solid var(--border); border-radius:2px;
+  background:var(--s1); color:var(--textD); font-size:11px; font-family:'Jost',sans-serif;
+  cursor:pointer; user-select:none; transition:all .15s; text-align:center; line-height:1.3;
+}
+.chip:hover { border-color:var(--borderH); color:var(--text); }
+.chip.active { border-color:var(--gold); background:rgba(201,169,110,0.09); color:var(--gold); }
+.chip-icon { font-size:15px; margin-bottom:3px; }
+.chip-sub { font-size:9px; color:var(--textM); margin-top:2px; }
+
+/* Section */
+.section { margin-bottom:18px; }
+
+/* Textarea */
+textarea {
+  width:100%; background:var(--s1); border:1px solid var(--border); border-radius:2px;
+  padding:12px 14px; color:var(--text); font-family:'Jost',sans-serif; font-size:13px;
+  font-weight:300; outline:none; resize:none; line-height:1.7;
+}
+textarea:focus { border-color:var(--borderH); }
+textarea::placeholder { color:var(--textM); }
+
+/* Buttons */
+.btn {
+  width:100%; padding:15px; background:transparent; border:1px solid var(--border);
+  border-radius:2px; color:var(--textD); font-family:'Cormorant Garamond',serif;
+  font-size:15px; font-style:italic; letter-spacing:.12em; cursor:pointer; transition:all .25s;
+}
+.btn.active { border-color:var(--gold); color:var(--gold); }
+.btn.active:hover { background:rgba(201,169,110,0.06); }
+.btn:disabled { cursor:not-allowed; opacity:.5; }
+.btn-small {
+  padding:6px 12px; font-family:'Jost',sans-serif; font-size:9px; font-style:normal;
+  letter-spacing:.15em; text-transform:uppercase; width:auto; display:inline-block; margin-top:8px;
+}
+.btn-gold { border-color:var(--gold); color:var(--gold); }
+.btn-gold:hover { background:rgba(201,169,110,0.08); }
+
+/* Paste banner */
+.paste-banner {
+  padding:14px 16px; background:rgba(201,169,110,0.07); border:1px solid var(--gold);
+  border-radius:2px; margin-bottom:16px; cursor:pointer;
+}
+.paste-banner-title { font-family:'Cormorant Garamond',serif; font-size:13px; font-style:italic; color:var(--gold); margin-bottom:4px; }
+.paste-banner-sub { font-size:11px; color:var(--textD); line-height:1.6; }
+
+/* Paste box */
+.paste-section { margin-top:4px; }
+.paste-label { font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; }
+.paste-area { border-radius:2px 2px 0 0; border-bottom:none !important; }
+.parse-btn { border-radius:0 0 2px 2px; border-top:none; margin-top:0; }
+
+/* Direction cards */
+.card { border:1px solid var(--border); border-radius:2px; background:var(--s1); overflow:hidden; margin-bottom:8px; transition:border-color .2s; }
+.card.open { border-color:var(--gold); }
+.card-header { padding:14px 16px; cursor:pointer; display:flex; justify-content:space-between; align-items:flex-start; }
+.card-label { font-size:9px; color:var(--goldD); letter-spacing:.2em; text-transform:uppercase; margin-bottom:4px; }
+.card-mood { font-family:'Cormorant Garamond',serif; font-size:14px; font-style:italic; color:var(--text); margin-bottom:4px; }
+.card-hook { font-family:'Cormorant Garamond',serif; font-size:12px; color:var(--textD); font-style:italic; }
+.card-arrow { color:var(--textD); font-size:11px; margin-left:10px; flex-shrink:0; }
+.card-body { border-top:1px solid var(--border); display:none; }
+.card.open .card-body { display:block; }
+
+/* Card angle */
+.card-angle { padding:10px 16px; background:var(--s2); border-bottom:1px solid var(--border); font-size:11px; color:var(--textD); line-height:1.6; font-style:italic; }
+
+/* HeyGen section */
+.hg-section { padding:12px 16px; border-bottom:1px solid var(--border); background:rgba(201,169,110,0.03); }
+.hg-btn { width:100%; padding:13px; background:transparent; border:1px solid var(--gold); border-radius:2px; color:var(--gold); font-family:'Cormorant Garamond',serif; font-size:13px; font-style:italic; letter-spacing:.08em; cursor:pointer; transition:all .25s; }
+.hg-btn:hover { background:rgba(201,169,110,0.08); }
+.hg-btn:disabled { border-color:var(--border); color:var(--textD); cursor:not-allowed; }
+.hg-success { padding:11px 13px; background:rgba(201,169,110,0.07); border:1px solid var(--gold); border-radius:2px; }
+.hg-success-title { font-family:'Cormorant Garamond',serif; font-size:12px; font-style:italic; color:var(--gold); margin-bottom:4px; }
+.hg-error { font-size:11px; color:rgba(240,160,140,.9); margin-top:6px; line-height:1.5; }
+
+/* Content section */
+.content-section { padding:14px 16px; border-bottom:1px solid var(--border); }
+.content-section:last-child { border-bottom:none; }
+.cs-label { font-size:9px; color:var(--goldD); letter-spacing:.2em; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.cs-icon { width:15px; height:15px; border:1px solid rgba(201,169,110,.22); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:8px; }
+.cs-text { font-size:12px; line-height:1.85; white-space:pre-wrap; color:var(--text); font-weight:300; }
+.cs-text.script { font-family:'Cormorant Garamond',serif; font-size:13px; }
+.cs-tool { display:inline-block; font-size:9px; padding:3px 8px; background:rgba(201,169,110,0.05); border:1px solid rgba(201,169,110,.14); border-radius:2px; color:var(--goldD); letter-spacing:.06em; margin-top:7px; }
+.cs-tool strong { color:var(--gold); }
+
+/* Pipeline */
+.pipeline { border:1px solid var(--border); border-radius:2px; overflow:hidden; margin-top:10px; }
+.pipeline-header { padding:10px 14px; background:var(--s2); display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--gold); letter-spacing:.1em; }
+.pipeline-step { padding:10px 14px; border-top:1px solid var(--border); display:flex; align-items:center; gap:10px; cursor:pointer; transition:background .2s; }
+.pipeline-step:hover { background:rgba(201,169,110,0.03); }
+.pipeline-step.done { background:rgba(201,169,110,0.04); }
+.ps-check { width:14px; height:14px; flex-shrink:0; border:1px solid rgba(201,169,110,.2); border-radius:2px; display:flex; align-items:center; justify-content:center; font-size:8px; color:var(--gold); }
+.ps-check.checked { border-color:var(--gold); background:rgba(201,169,110,.15); }
+.ps-text { font-size:11px; color:var(--text); }
+.pipeline-step.done .ps-text { text-decoration:line-through; color:var(--textD); }
+.pipeline-done-msg { padding:11px 14px; border-top:1px solid var(--border); text-align:center; background:rgba(201,169,110,.05); font-family:'Cormorant Garamond',serif; font-size:11px; color:var(--gold); font-style:italic; }
+
+/* Error */
+.error-msg { font-size:11px; color:rgba(240,160,140,.9); margin:6px 0; line-height:1.5; }
+
+/* Directions header */
+.dirs-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+.dirs-title { font-family:'Cormorant Garamond',serif; font-size:20px; font-style:italic; margin-bottom:3px; }
+.dirs-sub { font-size:10px; color:var(--textD); }
+.back-btn { background:transparent; border:1px solid var(--border); border-radius:2px; color:var(--textD); font-size:10px; font-family:'Jost',sans-serif; cursor:pointer; padding:6px 12px; letter-spacing:.08em; }
+.back-btn:hover { border-color:var(--borderH); color:var(--text); }
+
+/* Utility */
+.hidden { display:none !important; }
+.mt8 { margin-top:8px; }
+.gold { color:var(--gold); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-eye">✦ AURIC RITUALS ✦</div>
+    <div class="header-title">Content <span>Machine</span><span class="header-v">V8</span></div>
+    <div class="header-line"></div>
+  </div>
+
+  <!-- BRIEF FORM -->
+  <div id="brief-form">
+
+    <!-- Purpose -->
+    <div class="section">
+      <div class="label">What is this video for?</div>
+      <div class="grid-4" id="purpose-grid">
+        <div class="chip active" data-val="Inspirational" onclick="select('purpose',this)"><div class="chip-icon">✨</div>Inspire</div>
+        <div class="chip" data-val="Educational" onclick="select('purpose',this)"><div class="chip-icon">📚</div>Educate</div>
+        <div class="chip" data-val="Product Sell" onclick="select('purpose',this)" id="sell-chip"><div class="chip-icon">🛍</div>Sell</div>
+        <div class="chip" data-val="Brand Story" onclick="select('purpose',this)"><div class="chip-icon">◆</div>Brand</div>
+      </div>
+    </div>
+
+    <!-- Delivery -->
+    <div class="section">
+      <div class="label">Who delivers it?</div>
+      <div class="grid-3">
+        <div class="chip active" data-val="Lu Avatar" onclick="select('delivery',this)"><div class="chip-icon">✦</div>Lu<div class="chip-sub">Face + voice</div></div>
+        <div class="chip" data-val="Lu Voice" onclick="select('delivery',this)"><div class="chip-icon">✦</div>Lu Voice<div class="chip-sub">Voice only</div></div>
+        <div class="chip" data-val="Dee Avatar" onclick="select('delivery',this)"><div class="chip-icon">◎</div>Dee<div class="chip-sub">Face + voice</div></div>
+        <div class="chip" data-val="Dee Voice" onclick="select('delivery',this)"><div class="chip-icon">◎</div>Dee Voice<div class="chip-sub">Voice only</div></div>
+        <div class="chip" data-val="Auric Voice" onclick="select('delivery',this)"><div class="chip-icon">◈</div>Brand<div class="chip-sub">No persona</div></div>
+        <div class="chip" data-val="No Voice" onclick="select('delivery',this)"><div class="chip-icon">◯</div>Silent<div class="chip-sub">Visuals only</div></div>
+      </div>
+    </div>
+
+    <!-- Product (only for sell) -->
+    <div class="section hidden" id="product-section">
+      <div class="label">Which product?</div>
+      <div class="grid-2">
+        <div class="chip active" data-val="K-Beauty Moisture Sheet Mask" onclick="select('product',this)">🌸 Sheet Mask</div>
+        <div class="chip" data-val="Neck & Shoulder Massager" onclick="select('product',this)">🤍 Massager</div>
+        <div class="chip" data-val="Luxury Scented Candle" onclick="select('product',this)">🕯 Candle</div>
+        <div class="chip" data-val="Multiple products" onclick="select('product',this)">✦ Multi</div>
+      </div>
+    </div>
+
+    <!-- Style -->
+    <div class="section">
+      <div class="label">Video style</div>
+      <div class="grid-4">
+        <div class="chip" data-val="Candlelit Ritual" onclick="select('style',this)"><div class="chip-icon">🕯</div><div style="font-size:9px">Candlelit</div></div>
+        <div class="chip" data-val="That Girl Routine" onclick="select('style',this)"><div class="chip-icon">🌿</div><div style="font-size:9px">That Girl</div></div>
+        <div class="chip" data-val="POV Experience" onclick="select('style',this)"><div class="chip-icon">👁</div><div style="font-size:9px">POV</div></div>
+        <div class="chip" data-val="Silent Vlog" onclick="select('style',this)"><div class="chip-icon">🤫</div><div style="font-size:9px">Silent Vlog</div></div>
+        <div class="chip active" data-val="Storytime" onclick="select('style',this)"><div class="chip-icon">📖</div><div style="font-size:9px">Storytime</div></div>
+        <div class="chip" data-val="Before & After" onclick="select('style',this)"><div class="chip-icon">🔄</div><div style="font-size:9px">Before/After</div></div>
+        <div class="chip" data-val="Editorial Luxury" onclick="select('style',this)"><div class="chip-icon">◆</div><div style="font-size:9px">Editorial</div></div>
+        <div class="chip" data-val="Direct to Camera" onclick="select('style',this)"><div class="chip-icon">💬</div><div style="font-size:9px">Direct</div></div>
+      </div>
+    </div>
+
+    <!-- Duration -->
+    <div class="section">
+      <div class="label">Duration</div>
+      <div class="flex-row">
+        <div class="chip" data-val="15 seconds" onclick="select('duration',this)" style="flex:1;font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic">15s</div>
+        <div class="chip active" data-val="30 seconds" onclick="select('duration',this)" style="flex:1;font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic">30s</div>
+        <div class="chip" data-val="60 seconds" onclick="select('duration',this)" style="flex:1;font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic">60s</div>
+      </div>
+    </div>
+
+    <!-- Story -->
+    <div class="section">
+      <div class="label">Your brief — what's the idea?</div>
+      <textarea id="story" rows="4" placeholder="Write freely — the story, mood, or moment. The more specific, the better the 3 directions..." oninput="checkStory()"></textarea>
+    </div>
+
+    <!-- Extra -->
+    <div class="section">
+      <div class="label">Anything else? — optional</div>
+      <textarea id="extra" rows="2" placeholder="Trend to ride, words to avoid, colour palette..."></textarea>
+    </div>
+
+    <!-- Copy prompt button -->
+    <button class="btn" id="copy-btn" disabled onclick="copyPrompt()">Add your brief above ↑</button>
+
+    <!-- Paste section — always visible -->
+    <div class="paste-section" style="margin-top:16px">
+      <div class="paste-label">↓ Paste Claude's reply here — always ready</div>
+      <textarea id="paste-area" class="paste-area" rows="6"
+        placeholder="Got Claude's 3 directions? Paste the full reply here.&#10;&#10;It should contain ---DIRECTION A--- ---DIRECTION B--- ---DIRECTION C---"
+        oninput="checkPaste()"></textarea>
+      <div class="error-msg hidden" id="parse-error"></div>
+      <button class="btn parse-btn" id="parse-btn" disabled onclick="parseDirections()">Paste Claude's reply above to continue</button>
+    </div>
+
+  </div><!-- /brief-form -->
+
+  <!-- DIRECTIONS VIEW -->
+  <div id="dirs-view" class="hidden">
+    <div class="dirs-header">
+      <div>
+        <div class="dirs-title">Choose your direction</div>
+        <div class="dirs-sub">Tap to expand · Send to HeyGen in one tap ✦</div>
+      </div>
+      <button class="back-btn" onclick="showBrief()">← New brief</button>
+    </div>
+    <div id="cards-container"></div>
+    <div class="pipeline" id="pipeline"></div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const HG_API_KEY   = "sk_V2_hgu_kUsFKWUE52M_VlG7BmECx0SP55HJldljUYfniXyquoOG";
+const HG_AVATAR_ID = "9584bde9f21846e89b3fc948ddaa3ee3";
+const HG_VOICE_ID  = "Le3DOluics1VjEnPNGO7";
+
+const state = {
+  purpose: "Inspirational",
+  delivery: "Lu Avatar",
+  product: "K-Beauty Moisture Sheet Mask",
+  style: "Storytime",
+  duration: "30 seconds",
+};
+
+const pipelineSteps = {
+  "Lu Avatar":   ["🎙 Script → HeyGen (sent automatically ✦)","🎬 Shot prompts → Kling AI","✂️ HeyGen clip + Kling B-roll → CapCut","✍️ Caption + hashtags → TikTok","🚀 Post with affiliate link"],
+  "Lu Voice":    ["🎙 Script → HeyGen (voice only)","🎬 Shot prompts → Kling AI","✂️ Kling clips + voiceover → CapCut","✍️ Caption + hashtags → TikTok","🚀 Post with affiliate link"],
+  "Dee Avatar":  ["🎙 Script → HeyGen (avatar + voice)","🎬 Shot prompts → Kling AI","✂️ HeyGen clip + Kling B-roll → CapCut","✍️ Caption + hashtags → TikTok","🚀 Post with affiliate link"],
+  "Dee Voice":   ["📱 Record Dee's voiceover","🎬 Shot prompts → Kling AI","✂️ Kling clips + voiceover → CapCut","✍️ Caption + hashtags → TikTok","🚀 Post with affiliate link"],
+  "Auric Voice": ["🎙 Script → HeyGen (brand voice)","🎬 Shot prompts → Kling AI","✂️ Assemble in CapCut","✍️ Caption + hashtags → TikTok","🚀 Post with affiliate link"],
+  "No Voice":    ["🎵 Pick music in TikTok/CapCut","🎬 Shot prompts → Kling AI","✂️ Kling clips + music + text → CapCut","✍️ Caption + hashtags → TikTok","🚀 Post with affiliate link"],
+};
+
+// ── SELECTION ─────────────────────────────────────────────────────────────────
+function select(key, el) {
+  const parent = el.parentElement;
+  parent.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  state[key] = el.dataset.val;
+  if (key === 'purpose') {
+    document.getElementById('product-section').classList.toggle('hidden', state.purpose !== 'Product Sell');
+  }
+}
+
+// ── STORY CHECK ───────────────────────────────────────────────────────────────
+function checkStory() {
+  const story = document.getElementById('story').value.trim();
+  const btn = document.getElementById('copy-btn');
+  if (story.length > 5) {
+    btn.disabled = false;
+    btn.classList.add('active');
+    btn.textContent = 'Copy Prompt ✦';
+  } else {
+    btn.disabled = true;
+    btn.classList.remove('active');
+    btn.textContent = 'Add your brief above ↑';
+  }
+}
+
+function checkPaste() {
+  const val = document.getElementById('paste-area').value.trim();
+  const btn = document.getElementById('parse-btn');
+  if (val.length > 20) {
+    btn.disabled = false;
+    btn.classList.add('active');
+    btn.textContent = 'Show My 3 Directions →';
+  } else {
+    btn.disabled = true;
+    btn.classList.remove('active');
+    btn.textContent = 'Paste Claude\'s reply above to continue';
+  }
+}
+
+// ── PROMPT BUILDER ────────────────────────────────────────────────────────────
+function buildPrompt() {
+  const story = document.getElementById('story').value.trim();
+  const extra = document.getElementById('extra').value.trim();
+  const goals = {
+    Inspirational: "PRIMARY GOAL: Viewer feels something — aspiration, softness, desire. Emotion leads everything.",
+    Educational:   "PRIMARY GOAL: Viewer learns something specific. Lead with insight, back with product.",
+    "Product Sell":"PRIMARY GOAL: Drive affiliate clicks. Show the product, make results tangible, CTA that converts.",
+    "Brand Story": "PRIMARY GOAL: Build Auric Rituals as a world. Values, identity, why it exists.",
+  };
+  const delivery = {
+    "Lu Avatar":   "DELIVERY: Lu (Lumora) — Brazilian-Korean AI ritual guide. Wise, warm, poetic. Speaks in second person. Face + voice via HeyGen avatar.",
+    "Lu Voice":    "DELIVERY: Lu voice only — calm poetic voiceover over B-roll. No face on screen.",
+    "Dee Avatar":  "DELIVERY: Dee — human founder. Authentic, warm, direct to camera via HeyGen avatar.",
+    "Dee Voice":   "DELIVERY: Dee voice only — founder narration over B-roll. No face on screen.",
+    "Auric Voice": "DELIVERY: Auric Rituals brand voice — neutral, premium, no persona. Cinematic.",
+    "No Voice":    "DELIVERY: NO VOICE. Pure visuals + music + text overlays only. Generate ON-SCREEN TEXT SEQUENCE instead of script.",
+  };
+  const isNoVoice = state.delivery === "No Voice";
+  const scriptBlock = isNoVoice
+    ? "ON-SCREEN TEXT SEQUENCE:\n[Every text overlay with timing]"
+    : `SCRIPT:\n[Full spoken script for ${state.duration}. Every word. Include (pause) and [delivery note] cues.]`;
+
+  return `You are a luxury TikTok creative director for Auric Rituals (@auric.rituals) — a premium wellness TikTok Shop affiliate brand. Aesthetic: soft, premium, emotionally resonant. Candlelit spa ritual energy. Never a hard sell.
+
+CONTENT PURPOSE: ${state.purpose}
+${goals[state.purpose]}
+
+${delivery[state.delivery]}
+
+PRODUCT: ${state.product}
+VIDEO STYLE: ${state.style}
+DURATION: ${state.duration}
+
+THE CREATOR'S BRIEF:
+"${story}"
+${extra ? `\nEXTRA NOTES: "${extra}"` : ""}
+
+─────────────────────────────────────────────────────
+Generate exactly 3 DISTINCT creative directions. Each must feel like a genuinely different video.
+
+Use EXACTLY this format for each:
+
+---DIRECTION A---
+MOOD: [3–4 words]
+HOOK: [exact opening line, under 10 words]
+ANGLE: [one sentence — why this fits the brief]
+${scriptBlock}
+VISUAL DIRECTION:
+Shot 1: [Kling AI prompt — camera, lighting, movement, mood]
+Shot 2: [Kling AI prompt]
+Shot 3: [Kling AI prompt]
+Shot 4: [Kling AI prompt]
+CAPTION: [hook line. 2–3 body sentences. CTA.]
+HASHTAGS: [12 tags]
+ON-SCREEN TEXT: [5 overlays — "0s: text here"]
+
+---DIRECTION B---
+[same structure]
+
+---DIRECTION C---
+[same structure]
+
+Specific and sensory. No generic wellness language. Premium and on-brand.`;
+}
+
+function copyPrompt() {
+  const p = buildPrompt();
+  navigator.clipboard.writeText(p).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ Copied — paste into Claude chat now';
+    setTimeout(() => { btn.textContent = 'Copy Prompt ✦'; }, 4000);
+  });
+}
+
+// ── PARSER ────────────────────────────────────────────────────────────────────
+function parseRaw(raw) {
+  const directions = [];
+  let blocks = [];
+  const patterns = [
+    /---+\s*DIRECTION\s+([A-C])\s*---+/gi,
+    /\*{0,2}DIRECTION\s+([A-C])\*{0,2}/gi,
+    /##\s*DIRECTION\s+([A-C])/gi,
+    /(?:^|\n)DIRECTION\s+([A-C])\s*[-—:]/gim,
+  ];
+  for (const p of patterns) {
+    const parts = raw.split(p);
+    if (parts.length >= 5) { blocks = parts; break; }
+  }
+  if (!blocks.length) blocks = raw.split(/(?:^|\n)[-*#\s]*DIRECTION\s+([A-C])[-*#\s:]*/im);
+
+  for (let i = 1; i < blocks.length; i += 2) {
+    const label = (blocks[i] || '').trim() || String.fromCharCode(64 + Math.ceil(i / 2));
+    const body  = blocks[i + 1] || "";
+    const get = (key) => {
+      const m = body.match(new RegExp(`(?:^|\\n)\\*{0,2}${key}\\*{0,2}:\\s*([\\s\\S]*?)(?=\\n\\*{0,2}[A-Z][A-Z\\s\\/]{2,}\\*{0,2}:|---DIRECTION|$)`, "i"));
+      return m ? m[1].replace(/^\*\*/gm,"").trim() : "";
+    };
+    const d = {
+      label,
+      mood:     get("MOOD"),
+      hook:     get("HOOK"),
+      angle:    get("ANGLE"),
+      script:   get("SCRIPT") || get("ON-SCREEN TEXT SEQUENCE"),
+      visual:   get("VISUAL DIRECTION") || get("VISUAL"),
+      caption:  get("CAPTION"),
+      hashtags: get("HASHTAGS"),
+      onscreen: get("ON-SCREEN TEXT") || get("ON-SCREEN"),
+    };
+    if (d.hook || d.mood || d.script) directions.push(d);
+  }
+  return directions;
+}
+
+function parseDirections() {
+  const raw = document.getElementById('paste-area').value;
+  const errEl = document.getElementById('parse-error');
+  errEl.classList.add('hidden');
+  const dirs = parseRaw(raw);
+  if (!dirs.length) {
+    errEl.textContent = "⚠️ Couldn't find directions. Make sure you copied Claude's full response including ---DIRECTION A--- headers.";
+    errEl.classList.remove('hidden');
+    return;
+  }
+  renderDirections(dirs);
+}
+
+// ── RENDER DIRECTIONS ─────────────────────────────────────────────────────────
+function renderDirections(dirs) {
+  document.getElementById('brief-form').classList.add('hidden');
+  document.getElementById('dirs-view').classList.remove('hidden');
+
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+
+  dirs.forEach(d => {
+    const isAvatar = state.delivery.includes('Avatar');
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-header" onclick="toggleCard(this)">
+        <div style="flex:1">
+          <div class="card-label">Direction ${d.label}</div>
+          <div class="card-mood">${d.mood || '—'}</div>
+          <div class="card-hook">"${d.hook || ''}"</div>
+        </div>
+        <div class="card-arrow">▼</div>
+      </div>
+      <div class="card-body">
+        <div class="card-angle">${d.angle || ''}</div>
+        ${isAvatar && d.script ? `
+        <div class="hg-section">
+          <button class="hg-btn" onclick="sendToHeyGen(this, ${JSON.stringify(d.script).replace(/'/g,'&#39;')})">
+            🎙 Send to HeyGen — Generate Lu's Video ✦
+          </button>
+          <div class="hg-error hidden"></div>
+          <div class="hg-success hidden">
+            <div class="hg-success-title">✦ Sent — Lu is generating your video</div>
+            <div class="hg-vid-id" style="font-size:10px;color:var(--textD);margin-bottom:4px"></div>
+            <div style="font-size:11px;color:var(--textD)">Open HeyGen → Videos — ready in 2–5 min</div>
+          </div>
+        </div>` : ''}
+        ${renderSection('🎙','Script', d.script, isAvatar ? 'HeyGen' : null, 'See HeyGen above ↑', true)}
+        ${renderSection('🎬','Visual Direction', d.visual, 'Kling AI', 'Paste each shot separately')}
+        ${renderSection('✍️','Caption', d.caption, 'TikTok', 'Copy to post caption')}
+        ${renderSection('#','Hashtags', d.hashtags, 'TikTok', 'Add to post')}
+        ${renderSection('📱','On-Screen Text', d.onscreen, 'CapCut', 'Add as text overlays')}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  // Pipeline
+  renderPipeline();
+  document.getElementById('dirs-view').scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderSection(icon, label, content, tool, toolNote, isScript) {
+  if (!content) return '';
+  const escaped = content.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return `
+    <div class="content-section">
+      <div class="cs-label"><span class="cs-icon">${icon}</span>${label}</div>
+      <div class="cs-text ${isScript ? 'script' : ''}">${escaped}</div>
+      ${tool ? `<div class="cs-tool">→ <strong>${tool}</strong>: ${toolNote}</div>` : ''}
+      <button class="btn btn-small btn-gold" onclick="copyText(this, ${JSON.stringify(content)})">Copy ↗</button>
+    </div>`;
+}
+
+function renderPipeline() {
+  const steps = pipelineSteps[state.delivery] || pipelineSteps["Lu Avatar"];
+  const el = document.getElementById('pipeline');
+  const doneState = {};
+  const updateCount = () => {
+    const count = Object.values(doneState).filter(Boolean).length;
+    el.querySelector('.pipeline-count').textContent = `${count}/${steps.length}${count === steps.length ? ' ✦' : ''}`;
+    el.querySelectorAll('.pipeline-step').forEach((s, i) => {
+      s.classList.toggle('done', !!doneState[i]);
+      s.querySelector('.ps-check').classList.toggle('checked', !!doneState[i]);
+    });
+    const doneMsg = el.querySelector('.pipeline-done-msg');
+    if (doneMsg) doneMsg.classList.toggle('hidden', count !== steps.length);
+  };
+  el.innerHTML = `
+    <div class="pipeline-header"><span>📋 Production Pipeline</span><span class="pipeline-count">0/${steps.length}</span></div>
+    ${steps.map((s,i) => `
+      <div class="pipeline-step" onclick="togglePipeline(this,${i})">
+        <div class="ps-check"></div>
+        <div class="ps-text">${s}</div>
+      </div>`).join('')}
+    <div class="pipeline-done-msg hidden">✦ Content published. Ritual complete.</div>
+  `;
+  el.querySelectorAll('.pipeline-step').forEach((s, i) => {
+    s.onclick = () => { doneState[i] = !doneState[i]; updateCount(); };
+  });
+}
+
+// ── HEYGEN ────────────────────────────────────────────────────────────────────
+async function sendToHeyGen(btn, script) {
+  const section = btn.closest('.hg-section');
+  const errEl = section.querySelector('.hg-error');
+  const successEl = section.querySelector('.hg-success');
+  btn.disabled = true;
+  btn.textContent = 'Sending to HeyGen...';
+  errEl.classList.add('hidden');
+
+  const clean = script.replace(/\[.*?\]/g,'').replace(/\(pause\)/gi,'').trim();
+
+  try {
+    const res = await fetch("https://api.heygen.com/v2/video/generate", {
+      method: "POST",
+      headers: { "X-Api-Key": HG_API_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        video_inputs: [{
+          character: { type: "avatar", avatar_id: HG_AVATAR_ID, avatar_style: "normal" },
+          voice: { type: "text", input_text: clean, voice_id: HG_VOICE_ID, speed: 0.85 },
+          background: { type: "color", value: "#0A0A0A" },
+        }],
+        dimension: { width: 1080, height: 1920 },
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || JSON.stringify(data));
+    const videoId = data.data?.video_id || '';
+    btn.closest('.hg-section').querySelector('.hg-vid-id').textContent = videoId ? `Video ID: ${videoId}` : '';
+    btn.classList.add('hidden');
+    successEl.classList.remove('hidden');
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '🎙 Send to HeyGen — Generate Lu\'s Video ✦';
+    errEl.textContent = '⚠️ ' + e.message;
+    errEl.classList.remove('hidden');
+  }
+}
+
+// ── UI HELPERS ────────────────────────────────────────────────────────────────
+function toggleCard(header) {
+  const card = header.closest('.card');
+  const isOpen = card.classList.contains('open');
+  document.querySelectorAll('.card').forEach(c => {
+    c.classList.remove('open');
+    c.querySelector('.card-arrow').textContent = '▼';
+  });
+  if (!isOpen) {
+    card.classList.add('open');
+    header.querySelector('.card-arrow').textContent = '▲';
+  }
+}
+
+function copyText(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied';
+    btn.style.borderColor = 'var(--gold)';
+    btn.style.color = 'var(--gold)';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }, 2000);
+  });
+}
+
+function showBrief() {
+  document.getElementById('dirs-view').classList.add('hidden');
+  document.getElementById('brief-form').classList.remove('hidden');
+  document.getElementById('paste-area').value = '';
+  checkPaste();
+}
+</script>
+</body>
+</html>
